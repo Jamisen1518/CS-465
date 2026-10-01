@@ -9,6 +9,8 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var travelRouter = require('./app_server/routes/index');
 
+require('./app_api/models/db');
+var apiRouter = require('./app_api/routes');
 var app = express();
 
 // view engine setup
@@ -17,6 +19,7 @@ app.set('view engine', 'hbs');
 hbs.registerPartials(path.join(__dirname, 'app_server', 'views', 'partials'));
 
 app.use(logger('dev'));
+app.use('/api', apiRouter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

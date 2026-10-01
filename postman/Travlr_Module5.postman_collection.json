@@ -1,0 +1,145 @@
+{
+  "info": {
+    "name": "Travlr Module Five",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    }
+  ],
+  "item": [
+    {
+      "name": "All trips",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/trips"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"JSON response shape\", () => {",
+              "pm.expect(Array.isArray(body)).to.eql(true);",
+              "pm.expect(body.length).to.be.above(0);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "One trip",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/trips/GALR210214"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"JSON response shape\", () => {",
+              "pm.expect(Array.isArray(body)).to.eql(true);",
+              "pm.expect(body[0].code).to.eql('GALR210214');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Unknown trip",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/trips/NOTFOUND"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+              "const body = pm.response.json();",
+              "pm.test(\"JSON response shape\", () => {",
+              "pm.expect(body.message).to.be.a(\"string\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invalid code",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/trips/bad%20code"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test(\"JSON response shape\", () => {",
+              "pm.expect(body.message).to.be.a(\"string\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Unknown endpoint",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/unknown"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+              "const body = pm.response.json();",
+              "pm.test(\"JSON response shape\", () => {",
+              "pm.expect(body.message).to.be.a(\"string\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Database unavailable (stop MongoDB first; restart after test)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/trips"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 500\", () => pm.response.to.have.status(500));",
+              "pm.test(\"JSON error\", () => pm.expect(pm.response.json().message).to.be.a(\"string\"));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
