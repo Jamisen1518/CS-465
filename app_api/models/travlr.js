@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 // Define the trip schema
 const tripSchema = new mongoose.Schema({
-    code: { type: String, required: true, index: true },
+    code: { type: String, required: true, index: true, unique: true },
     name: { type: String, required: true, index: true },
     length: { type: String, required: true },
     start: { type: Date, required: true },

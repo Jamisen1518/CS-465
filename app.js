@@ -19,11 +19,16 @@ app.set('view engine', 'hbs');
 hbs.registerPartials(path.join(__dirname, 'app_server', 'views', 'partials'));
 
 app.use(logger('dev'));
-app.use('/api', apiRouter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use('/api', apiRouter);
 app.use(express.static(path.join(__dirname, 'public')));
+var adminDist = path.join(__dirname, 'app_admin', 'dist', 'travlr-admin', 'browser');
+app.use('/admin', express.static(adminDist));
+app.get('/admin/*', function(req, res, next) {
+  res.sendFile(path.join(adminDist, 'index.html'), function(err) { if (err) next(err); });
+});
 
 app.use('/', indexRouter);
 app.use('/', travelRouter);
