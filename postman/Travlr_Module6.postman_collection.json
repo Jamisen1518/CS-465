@@ -1,0 +1,192 @@
+{
+  "info": {
+    "name": "Travlr Module Six CRUD Checks",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    }
+  ],
+  "item": [
+    {
+      "name": "All trips",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/trips"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"JSON response shape\", () => {",
+              "pm.expect(Array.isArray(body)).to.eql(true);",
+              "pm.expect(body.length).to.be.above(0);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "One trip",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/trips/GALR210214"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"JSON response shape\", () => {",
+              "pm.expect(Array.isArray(body)).to.eql(true);",
+              "pm.expect(body[0].code).to.eql('GALR210214');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Unknown trip",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/trips/NOTFOUND"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+              "const body = pm.response.json();",
+              "pm.test(\"JSON response shape\", () => {",
+              "pm.expect(body.message).to.be.a(\"string\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invalid code",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/trips/bad%20code"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test(\"JSON response shape\", () => {",
+              "pm.expect(body.message).to.be.a(\"string\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Unknown endpoint",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/unknown"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+              "const body = pm.response.json();",
+              "pm.test(\"JSON response shape\", () => {",
+              "pm.expect(body.message).to.be.a(\"string\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create trip (run before Update and Delete)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"MOD6DEMO\",\n  \"name\": \"Module Six Reef Escape\",\n  \"length\": \"3 nights / 4 days\",\n  \"start\": \"2026-11-15T08:00:00Z\",\n  \"resort\": \"Blue Cove, 4 stars\",\n  \"perPerson\": \"899.00\",\n  \"image\": \"reef1.jpg\",\n  \"description\": \"A sample trip created to test the administrator API.\",\n  \"description2\": \"Created for Module Six CRUD testing.\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/api/trips"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+        "const trip = pm.response.json();",
+        "pm.test('Created trip is returned', () => pm.expect(trip.code).to.eql('MOD6DEMO'));",
+        "pm.collectionVariables.set('tripCode', trip.code);"
+      ] } }]
+    },
+    {
+      "name": "Update trip (run after Create)",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Module Six Reef Escape\",\n  \"length\": \"5 nights / 6 days\",\n  \"start\": \"2026-12-10T08:00:00Z\",\n  \"resort\": \"Blue Cove, 5 stars\",\n  \"perPerson\": \"999.00\",\n  \"image\": \"reef2.jpg\",\n  \"description\": \"Updated package details for the Module Six test.\",\n  \"description2\": \"Update verification.\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/api/trips/{{tripCode}}"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+        "pm.test('Updated trip is returned', () => pm.expect(pm.response.json().name).to.eql('Updated Module Six Reef Escape'));"
+      ] } }]
+    },
+    {
+      "name": "Delete trip (run after Update)",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/trips/{{tripCode}}"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+        "pm.test('Delete confirmation is returned', () => pm.expect(pm.response.json().code).to.eql(pm.collectionVariables.get('tripCode')));"
+      ] } }]
+    },
+    {
+      "name": "Database unavailable (stop MongoDB first; restart after test)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/trips"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 500\", () => pm.response.to.have.status(500));",
+              "pm.test(\"JSON error\", () => pm.expect(pm.response.json().message).to.be.a(\"string\"));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

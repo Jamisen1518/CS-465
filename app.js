@@ -9,6 +9,8 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var travelRouter = require('./app_server/routes/index');
 
+require('./app_api/models/db');
+var apiRouter = require('./app_api/routes');
 var app = express();
 
 // view engine setup
@@ -20,7 +22,13 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use('/api', apiRouter);
 app.use(express.static(path.join(__dirname, 'public')));
+var adminDist = path.join(__dirname, 'app_admin', 'dist', 'travlr-admin', 'browser');
+app.use('/admin', express.static(adminDist));
+app.get('/admin/*', function(req, res, next) {
+  res.sendFile(path.join(adminDist, 'index.html'), function(err) { if (err) next(err); });
+});
 
 app.use('/', indexRouter);
 app.use('/', travelRouter);

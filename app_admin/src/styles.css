@@ -1,0 +1,9 @@
+:root { color-scheme: light; }
+body { background: #f4f7fb; color: #17324d; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.admin-shell { min-height: 100vh; }
+.hero { background: linear-gradient(120deg, #12395b, #087e8b); color: #fff; }
+.brand-mark { letter-spacing: .12em; font-weight: 800; }
+.trip-image { height: 180px; object-fit: cover; background: #e5edf3; }
+.trip-card { border: 0; border-radius: 1rem; overflow: hidden; box-shadow: 0 .4rem 1.2rem #17324d14; height: 100%; }
+.form-panel { border: 0; border-radius: 1rem; box-shadow: 0 .4rem 1.2rem #17324d14; }
+.eyebrow { font-size: .75rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #087e8b; }
