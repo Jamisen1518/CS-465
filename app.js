@@ -1,3 +1,4 @@
+require('dotenv').config();
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -21,11 +22,17 @@ hbs.registerPartials(path.join(__dirname, 'app_server', 'views', 'partials'));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(require('passport').initialize());
 app.use(cookieParser());
 app.use('/api', apiRouter);
 app.use(express.static(path.join(__dirname, 'public')));
-var adminDist = path.join(__dirname, 'app_admin', 'dist', 'travlr-admin', 'browser');
+var adminDist = path.join(__dirname, 'app_admin', 'dist', 'travlr-admin',);
 app.use('/admin', express.static(adminDist));
+app.get('/admin', function(req, res, next) {
+  res.sendFile(path.join(adminDist, 'index.html'), function(err) {
+    if (err) next(err);
+  });
+});
 app.get('/admin/*', function(req, res, next) {
   res.sendFile(path.join(adminDist, 'index.html'), function(err) { if (err) next(err); });
 });
