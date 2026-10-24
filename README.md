@@ -1,60 +1,52 @@
-# Travlr Getaways — Module Six
+# Travlr Getaways
 
-## Setup
-Use Node.js 20.19 or later (Node 22 LTS recommended for the supplied dependency versions). Start MongoDB locally, then from this folder run:
+## Project overview
 
-```sh
-npm ci
-npm run seed
-npm start
-```
+Travlr Getaways is a full stack travel application built for CS 465. It includes a public customer-facing website and an administrative single-page application (SPA). The public site displays trip information, while the admin side lets an authorized user manage trip records.
 
-`npm run seed` deletes and replaces the trips in the course development database. Use it only against your development database. The default database is `mongodb://127.0.0.1/travlr`; set MONGODB_URI to override it.
+### Technologies
 
-Open http://localhost:3000/travel. Both /travel and /travel.html render trips received from the API. Optional API_BASE_URL defaults to http://127.0.0.1:3000/api/ (uses PORT when set).
+- **MongoDB and Mongoose** store and retrieve trip and user records.
+- **Node.js and Express** provide the server and REST API.
+- **Handlebars** renders the public Express website.
+- **Angular** powers the administrative SPA.
+- **JSON Web Tokens (JWT)** support authenticated access to protected admin operations.
 
-## Separation of concerns
-- app_api/models: database connection, Mongoose trip schema, seed script.
-- app_api/controllers/trips.js: Mongoose trip queries and CRUD JSON responses.
-- app_api/routes: GET /api/trips, GET /api/trips/:tripCode, POST /api/trips, PUT /api/trips/:tripCode, and DELETE /api/trips/:tripCode.
-- app_server/controllers/traveler.js: fetch request to API, JSON processing, Handlebars rendering.
-- data/trips.json: seed data, included in this ZIP.
+## Running the application
 
-The canonical prefix is /api. Express's default case-insensitive routing also accepts /API.
-The trip collection returns an array with HTTP 200. The single-trip GET returns an array containing its matching record to preserve the Module Five response format. POST returns 201; duplicate codes return 409. PUT updates editable details using the trip code in the URL and returns 200. DELETE returns 200 with a confirmation message. Unknown codes/endpoints return 404, invalid input returns 400, and database failures return 500 with a JSON message. Trip codes are unique and remain unchanged during edits.
+The exact commands depend on the folder and scripts in the submitted project. From the project directory:
 
-## Angular administrator SPA
+1. Install the dependencies for the server/API and Angular admin application.
+2. Configure the MongoDB connection and any authentication settings using the project's environment configuration. Do not commit real credentials or signing secrets.
+3. Start the Express server and the Angular admin application using the scripts provided in their respective `package.json` files.
+4. Open the local public site and admin application in a browser. Use a registered admin account to sign in.
 
-The Angular CLI application is in `app_admin/`. It contains a reusable `TripCardComponent`, a trip list and add/edit form, and `TripService` methods for GET, POST, PUT, and DELETE. Bootstrap styles are included in the Angular build. To run both applications for development, open two terminals:
+The API is organized under the `/api` path. Check the project configuration for the local server port and Angular proxy settings.
 
-1. In this project folder, run `npm install`, start MongoDB, run `npm run seed` for the development database, and run `npm start`.
-2. In `app_admin/`, run `npm install` and `npm start`. Open `http://localhost:4200/` to test the admin SPA. Its proxy sends `/api` and `/images` requests to Express at port 3000.
-3. To serve the compiled SPA from Express, run `npm --prefix app_admin run build` or `npm run build:admin`, then open `http://localhost:3000/admin/`.
+## Architecture
 
-The Angular service tests use mocked HTTP requests. Run them with `npm --prefix app_admin test` in an environment with Chrome installed. The Express controller tests run with `npm test`. Use Postman against `http://localhost:3000/api/trips` to verify each method; create a test trip before testing PUT and DELETE, then confirm that the same new or updated trip appears at `/travel`.
+The project uses three related frontend approaches. The public website is rendered by Express with Handlebars. The server sends finished HTML pages to the browser, which works well for page-based navigation and keeps the templates close to the server routes. JavaScript adds behavior in the browser, such as responding to user actions and working with data returned by the API. The Angular admin SPA loads an application shell and updates its views as the administrator moves between screens, without reloading a complete page for every action. Angular components and services also help organize the admin interface and its API calls.
 
-## Testing in Postman — required before submission
-1. Import `postman/Travlr_Module6.postman_collection.json`.
-2. With MongoDB running and seeded, run GET All trips and GET One trip. Then run Create trip, Update trip, and Delete trip in that order. The create request saves `MOD6DEMO` as a collection variable for update and delete.
-3. Use the returned statuses and trip data to verify the API. Refresh `/admin/` and `/travel` after creating or updating a trip to verify that both clients use the same database records.
-4. Stop MongoDB only if you want to run the final database-unavailable request; restart it afterward. Save the required screenshots from the browser after you add and update a trip. These live Postman and browser checks have not been run in this environment.
+The backend uses MongoDB because trip and user records are document-shaped data that can be represented naturally as JSON-like documents. MongoDB works with changing application data, and Mongoose provides schemas, validation, and query methods such as `.find()`. This allowed the application to retrieve and manage trips without mapping the records into fixed relational tables.
 
-## Checks completed in this environment
-The controller tests exercise mock Mongoose queries and a mocked API fetch. These checks do not validate a live MongoDB connection or replace Postman tests. Run `npm test` and the Angular service tests after dependencies are installed.
+## Functionality
 
-## GitHub module6 branch
-The supplied ZIP does not contain Git metadata. Apply these files to your existing local repository and keep its `.git` folder. From the repository root:
+JSON is a text format for representing data with objects, arrays, strings, numbers, booleans, and null values. JavaScript is a programming language that can create, read, and manipulate JSON data, but the two are different: JSON does not contain executable code or JavaScript-specific values such as functions. In this application, the API sends and receives trip and user data as JSON. The Angular frontend can parse those responses and display them, while Express and Mongoose process requests and return the resulting records in JSON.
 
-```sh
-git switch -c module6
-git add .
-git commit -m "Add Angular admin trip management"
-git push -u origin module6
-```
+During development, static trip information was replaced with data retrieved through Mongoose from MongoDB. API routes and controller logic were organized under `app_api`, which gave the public site and admin SPA a consistent way to retrieve or change trip data. The Angular admin interface also uses reusable components, including trip cards and shared form/interface pieces. Reusing components reduces repeated markup and logic, keeps the interface consistent, and makes later changes easier to apply in one place.
 
-If `module6` already exists, use `git switch module6`. Push from the existing local repository after copying these updates; this ZIP has no repository credentials or remote configuration.
+## Testing
 
-## AI assistance acknowledgment
-OpenAI ChatGPT assisted with API refactoring, error handling, and test preparation. Review the code, perform the live Postman tests, and follow your course's citation requirements.
+HTTP methods describe the action a client wants the server to perform. In this project, **GET** retrieves trip data, **POST** creates a trip, **PUT** updates a trip, and **DELETE** removes a trip. An endpoint is a specific API route, such as the route used to retrieve all trips or the route used to access one trip by its identifier. The frontend calls these endpoints, and the server returns a status code and, when appropriate, a JSON response.
 
-When copying into your existing repository, preserve your `.git` folder and merge the updated files into the existing Module Five project.
+API testing with tools such as Postman checks that each method reaches the right endpoint, returns the expected data, and handles invalid requests appropriately. Testing became more involved after authentication was added because protected endpoints require a valid JWT. A request without a token or with an invalid token should be denied; an authenticated request should be allowed to perform the operation permitted by that endpoint. This helped verify both normal API behavior and the access controls around trip administration.
+
+## Reflection
+
+This course helped me connect the different parts of a full stack application, from the browser interface to server routes, API controllers, and database operations. I developed more experience with Express, Angular, MongoDB, Mongoose, JSON, REST methods, and JWT authentication. I also practiced testing API requests, troubleshooting application structure, and documenting a working project.
+
+These skills support my goal of pursuing work in computer science and information security. Understanding how an application handles data and protects administrative functions gives me a stronger foundation for entry-level technical and cybersecurity roles. Completing the project also gave me a portfolio example that demonstrates how I can learn a technology stack, connect its parts, and explain the decisions behind my work.
+
+## AI use acknowledgment
+
+I used generative AI to help organize and draft portions of this README. I reviewed and edited the content to reflect my project and understanding.
